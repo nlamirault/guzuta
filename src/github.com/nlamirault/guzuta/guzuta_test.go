@@ -22,15 +22,9 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-// func checkCommand(t *testing.T, name string, command cli.Command) {
-// 	if command.Name != name {
-// 		t.Errorf("Invalid command name: %s", command.Name)
-// 	}
-// }
-
 func TestCLICommands(t *testing.T) {
 	app := makeApp()
-	if len(app.Commands) != 7 {
+	if len(app.Commands) != 1 {
 		t.Errorf("Invalid CLI number of commands")
 	}
 }
@@ -45,23 +39,9 @@ func checkGlobalArgument(flags []cli.Flag, name string) int {
 	return -1
 }
 
-func TestScalewayUserIDArgument(t *testing.T) {
+func TestGithubTokenArgument(t *testing.T) {
 	app := makeApp()
-	if checkGlobalArgument(app.Flags, "--scaleway-userid") == -1 {
-		t.Errorf("no userid flag")
-	}
-}
-
-func TestScalewayTokenArgument(t *testing.T) {
-	app := makeApp()
-	if checkGlobalArgument(app.Flags, "--scaleway-token") == -1 {
+	if checkGlobalArgument(app.Flags, "--github-token") == -1 {
 		t.Errorf("No token flag")
-	}
-}
-
-func TestScalewayOrganizationArgument(t *testing.T) {
-	app := makeApp()
-	if checkGlobalArgument(app.Flags, "--scaleway-organization") == -1 {
-		t.Errorf("No organization flag")
 	}
 }

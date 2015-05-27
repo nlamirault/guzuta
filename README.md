@@ -14,6 +14,28 @@ Download binary from [releases][] for your platform.
 ## Usage
 
 ```bash
+$ guzuta
+NAME:
+   guzuta - A CLI for Open source repositories
+
+USAGE:
+   guzuta [global options] command [command options] [arguments...]
+
+VERSION:
+   0.1.0
+
+AUTHOR(S):
+   Nicolas Lamirault <nicolas.lamirault@gmail.com>
+
+COMMANDS:
+   github
+   help, h      Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --log-level, -l "info"       Log level (options: debug, info, warn, error, fatal, panic)
+   --github-token               Github access token [$GUZUTA_GITHUB_TOKEN]
+   --help, -h                   show help
+   --version, -v                print the version
 
 ```
 
@@ -84,4 +106,3 @@ Nicolas Lamirault <nicolas.lamirault@gmail.com>
 [coveralls]: https://coveralls.io/r/nlamirault/guzuta
 
 [releases]: https://github.com/nlamirault/guzuta/releases
-

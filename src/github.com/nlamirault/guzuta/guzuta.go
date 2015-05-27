@@ -28,9 +28,9 @@ import (
 
 func makeApp() *cli.App {
 	app := cli.NewApp()
-	app.Name = "scaleway"
+	app.Name = "guzuta"
 	app.Version = version.Version
-	app.Usage = "A CLI for Scaleway"
+	app.Usage = "A CLI for Open source repositories"
 	app.Author = "Nicolas Lamirault"
 	app.Email = "nicolas.lamirault@gmail.com"
 	app.CommandNotFound = cmdNotFound
