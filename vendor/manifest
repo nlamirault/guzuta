@@ -1,0 +1,33 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/google/go-github/",
+			"repository": "https://github.com/google/go-github",
+			"revision": "3d36a514f203c05496af26634d367a27305156af",
+			"branch": "master",
+			"path": ""
+		},
+		{
+			"importpath": "github.com/codegangsta/cli",
+			"repository": "https://github.com/codegangsta/cli",
+			"revision": "942282e931e8286aa802a30b01fa7e16befb50f3",
+			"branch": "master",
+			"path": ""
+		},
+		{
+			"importpath": "github.com/Sirupsen/logrus",
+			"repository": "https://github.com/Sirupsen/logrus",
+			"revision": "6ba91e24c498b49d0363c723e9e2ab2b5b8fd012",
+			"branch": "master",
+			"path": ""
+		},
+		{
+			"importpath": "github.com/google/go-querystring/",
+			"repository": "https://github.com/google/go-querystring",
+			"revision": "547ef5ac979778feb2f760cdb5f4eae1a2207b86",
+			"branch": "master",
+			"path": ""
+		}
+	]
+}
