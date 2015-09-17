@@ -18,57 +18,33 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
-	"github.com/nlamirault/abraracourcix/api"
-	"github.com/nlamirault/abraracourcix/io"
-	"github.com/nlamirault/abraracourcix/logging"
-	"github.com/nlamirault/abraracourcix/storage"
+	"github.com/nlamirault/guzuta/ci/travis"
+	"github.com/nlamirault/guzuta/logging"
+	"github.com/nlamirault/guzuta/utils"
+	"github.com/nlamirault/guzuta/version"
+)
+
+const (
+	// APP is the application name
+	APP string = "guzuta"
 )
 
 var (
-	port       string
-	debug      bool
-	version    bool
-	backend    string
-	backendURL string
-	dataDir    string
-	username   string
-	password   string
+	debug       bool
+	showVersion bool
 )
 
 func init() {
 	// parse flags
-	flag.BoolVar(&version, "version", false, "print version and exit")
-	flag.BoolVar(&version, "v", false, "print version and exit (shorthand)")
+	flag.BoolVar(&showVersion, "version", false, "print version and exit")
+	flag.BoolVar(&showVersion, "v", false, "print version and exit (shorthand)")
 	flag.BoolVar(&debug, "d", false, "run in debug mode")
-	flag.StringVar(&port, "port", "8080", "port to use")
-	flag.StringVar(&backend, "backend", "boltdb", "Storage backend")
-	flag.StringVar(&dataDir, "data", "", "Data directory")
-	flag.StringVar(&backendURL, "backend-url", "", "URL for backends")
-	flag.StringVar(&username, "username", "", "Username authentication")
-	flag.StringVar(&password, "password", "", "Password authentication")
 	flag.Parse()
 }
 
-func getDefaultDataDir() string {
-	return fmt.Sprintf("%s/.config/abraracourcix", io.UserHomeDir())
-}
-
-func getStorage() (storage.Storage, error) {
-	if len(dataDir) == 0 {
-		dataDir = getDefaultDataDir()
-	}
-	err := os.MkdirAll(dataDir, 0744)
-	if err != nil {
-		log.Printf("[ERROR] [abraracourcix] Unable to create data directory %v",
-			err)
-	}
-	return storage.InitStorage(backend, &storage.Config{
-
-		Data:       fmt.Sprintf("%s/%s", dataDir, backend),
-		BackendURL: backendURL,
-	})
+func getConfigurationFile() string {
+	return fmt.Sprintf("%s/.config/guzuta/guzuta.yml", utils.UserHomeDir())
 }
 
 func main() {
@@ -77,24 +53,16 @@ func main() {
 	} else {
 		logging.SetLogging("INFO")
 	}
-	store, err := getStorage()
-	if err != nil {
-		log.Printf("[ERROR] [abraracourcix] %v", err)
+	if showVersion {
+		fmt.Printf("%s v%s\n", APP, version.Version)
 		return
 	}
-	var auth *api.Authentication
-	log.Printf("%s %s", username, password)
-	if len(username) > 0 && len(password) > 0 {
-		auth = &api.Authentication{
-			Username: username,
-			Password: password,
-		}
+	log.Printf("[INFO] Guzuta")
+	travis := travis.NewClient("64c3acc2c2a010d18e6314ba9db85df51d4f7ea2")
+	token, err := travis.Authenticate()
+	if err != nil {
+		log.Printf("[INFO] Travis error : %#v", err)
+		return
 	}
-	e := api.GetWebService(store, auth)
-	if debug {
-		e.Debug()
-	}
-	log.Printf("[INFO] [abraracourcix] Launch Abraracourcix on %s using %s backend",
-		port, backend)
-	e.Run(fmt.Sprintf(":%s", port))
+	log.Printf("[INFO] Done %v", token)
 }
