@@ -15,65 +15,86 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
-
-	"github.com/nlamirault/guzuta/commands"
-	mylog "github.com/nlamirault/guzuta/log"
-	"github.com/nlamirault/guzuta/version"
+	"github.com/nlamirault/abraracourcix/api"
+	"github.com/nlamirault/abraracourcix/io"
+	"github.com/nlamirault/abraracourcix/logging"
+	"github.com/nlamirault/abraracourcix/storage"
 )
 
-func makeApp() *cli.App {
-	app := cli.NewApp()
-	app.Name = "guzuta"
-	app.Version = version.Version
-	app.Usage = "A CLI for Open source repositories"
-	app.Author = "Nicolas Lamirault"
-	app.Email = "nicolas.lamirault@gmail.com"
-	app.CommandNotFound = cmdNotFound
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "log-level, l",
-			Value: "info",
-			Usage: fmt.Sprintf("Log level (options: debug, info, warn, error, fatal, panic)"),
-		},
-		cli.StringFlag{
-			Name:   "github-token",
-			Usage:  "Github access token",
-			Value:  "",
-			EnvVar: "GUZUTA_GITHUB_TOKEN",
-		},
-	}
-	app.Before = func(c *cli.Context) error {
-		log.SetFormatter(&mylog.CustomFormatter{})
-		log.SetOutput(os.Stderr)
-		level, err := log.ParseLevel(c.String("log-level"))
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
-		log.SetLevel(level)
-		return nil
-	}
+var (
+	port       string
+	debug      bool
+	version    bool
+	backend    string
+	backendURL string
+	dataDir    string
+	username   string
+	password   string
+)
 
-	app.Commands = commands.Commands
-	//app.Flags = commands.Flags
-	return app
+func init() {
+	// parse flags
+	flag.BoolVar(&version, "version", false, "print version and exit")
+	flag.BoolVar(&version, "v", false, "print version and exit (shorthand)")
+	flag.BoolVar(&debug, "d", false, "run in debug mode")
+	flag.StringVar(&port, "port", "8080", "port to use")
+	flag.StringVar(&backend, "backend", "boltdb", "Storage backend")
+	flag.StringVar(&dataDir, "data", "", "Data directory")
+	flag.StringVar(&backendURL, "backend-url", "", "URL for backends")
+	flag.StringVar(&username, "username", "", "Username authentication")
+	flag.StringVar(&password, "password", "", "Password authentication")
+	flag.Parse()
 }
 
-func cmdNotFound(c *cli.Context, command string) {
-	log.Fatalf(
-		"%s: '%s' is not a %s command. See '%s --help'.",
-		c.App.Name,
-		command,
-		c.App.Name,
-		c.App.Name,
-	)
+func getDefaultDataDir() string {
+	return fmt.Sprintf("%s/.config/abraracourcix", io.UserHomeDir())
+}
+
+func getStorage() (storage.Storage, error) {
+	if len(dataDir) == 0 {
+		dataDir = getDefaultDataDir()
+	}
+	err := os.MkdirAll(dataDir, 0744)
+	if err != nil {
+		log.Printf("[ERROR] [abraracourcix] Unable to create data directory %v",
+			err)
+	}
+	return storage.InitStorage(backend, &storage.Config{
+
+		Data:       fmt.Sprintf("%s/%s", dataDir, backend),
+		BackendURL: backendURL,
+	})
 }
 
 func main() {
-	app := makeApp()
-	app.Run(os.Args)
+	if debug {
+		logging.SetLogging("DEBUG")
+	} else {
+		logging.SetLogging("INFO")
+	}
+	store, err := getStorage()
+	if err != nil {
+		log.Printf("[ERROR] [abraracourcix] %v", err)
+		return
+	}
+	var auth *api.Authentication
+	log.Printf("%s %s", username, password)
+	if len(username) > 0 && len(password) > 0 {
+		auth = &api.Authentication{
+			Username: username,
+			Password: password,
+		}
+	}
+	e := api.GetWebService(store, auth)
+	if debug {
+		e.Debug()
+	}
+	log.Printf("[INFO] [abraracourcix] Launch Abraracourcix on %s using %s backend",
+		port, backend)
+	e.Run(fmt.Sprintf(":%s", port))
 }

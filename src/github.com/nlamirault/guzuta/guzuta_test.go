@@ -13,35 +13,3 @@
 // limitations under the License.
 
 package main
-
-import (
-	"fmt"
-	"strings"
-	"testing"
-
-	"github.com/codegangsta/cli"
-)
-
-func TestCLICommands(t *testing.T) {
-	app := makeApp()
-	if len(app.Commands) != 1 {
-		t.Errorf("Invalid CLI number of commands")
-	}
-}
-
-func checkGlobalArgument(flags []cli.Flag, name string) int {
-	for i, flag := range flags {
-		fmt.Printf("Flag: %v\n", flag.String())
-		if strings.HasPrefix(flag.String(), name) {
-			return i
-		}
-	}
-	return -1
-}
-
-func TestGithubTokenArgument(t *testing.T) {
-	app := makeApp()
-	if checkGlobalArgument(app.Flags, "--github-token") == -1 {
-		t.Errorf("No token flag")
-	}
-}
