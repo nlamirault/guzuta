@@ -44,8 +44,11 @@ type Client struct {
 	// Base URL for API requests.
 	BaseURL *url.URL
 
-	// The token used to communicate
+	// The token used to authenticate
 	Token string
+
+	// The token used to send API requests
+	AccessToken string
 
 	// The HTTP client to use when sending requests.
 	HTTPClient *http.Client
@@ -104,6 +107,9 @@ func (c *Client) Do(method, urlStr string, body interface{}) (*http.Response, er
 	req.Header.Add("Content-Type", mediaType)
 	req.Header.Add("Accept", acceptHeader)
 	req.Header.Add("User-Agent", userAgent)
+	if len(c.AccessToken) > 0 {
+		req.Header.Add("Authorization", fmt.Sprintf("token %s", c.AccessToken))
+	}
 	log.Printf("[DEBUG] [travis] Perform request : %v", req)
 	return c.HTTPClient.Do(req)
 }

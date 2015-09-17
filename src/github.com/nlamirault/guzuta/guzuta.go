@@ -17,7 +17,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	//"log"
+
+	"github.com/mitchellh/colorstring"
 
 	"github.com/nlamirault/guzuta/ci/travis"
 	"github.com/nlamirault/guzuta/logging"
@@ -31,8 +33,10 @@ const (
 )
 
 var (
-	debug       bool
-	showVersion bool
+	debug              bool
+	showVersion        bool
+	travisRepository   string
+	travisRepositories string
 )
 
 func init() {
@@ -40,11 +44,44 @@ func init() {
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.BoolVar(&showVersion, "v", false, "print version and exit (shorthand)")
 	flag.BoolVar(&debug, "d", false, "run in debug mode")
+	// Travis
+	flag.StringVar(&travisRepository, "travis-name", "", "Status of repository")
+	flag.StringVar(&travisRepositories, "travis-namespace", "", "Status of repositories")
 	flag.Parse()
 }
 
 func getConfigurationFile() string {
 	return fmt.Sprintf("%s/.config/guzuta/guzuta.yml", utils.UserHomeDir())
+}
+
+func travisRepositoryStatus(travis *travis.Client, name string) {
+	resp, err := travis.GetRepository(name)
+	if err != nil {
+		colorstring.Printf("[red] Travis : %s", err.Error())
+		return
+	}
+	color := "green"
+	if resp.Repository.LastBuildState == "failed" {
+		color = "red"
+	}
+	fmt.Printf(resp.Repository.Slug + "\t" +
+		colorstring.Color("["+color+"]"+resp.Repository.LastBuildState) + "\n")
+}
+
+func travisRepositoriesStatus(travis *travis.Client, namespace string) {
+	resp, err := travis.GetRepositories(namespace)
+	if err != nil {
+		colorstring.Printf("[red] Travis : %s", err.Error())
+		return
+	}
+	for _, repo := range resp.Repositories {
+		color := "green"
+		if repo.LastBuildState == "failed" {
+			color = "red"
+		}
+		fmt.Printf(repo.Slug + "\t" +
+			colorstring.Color("["+color+"]"+repo.LastBuildState) + "\n")
+	}
 }
 
 func main() {
@@ -57,12 +94,19 @@ func main() {
 		fmt.Printf("%s v%s\n", APP, version.Version)
 		return
 	}
-	log.Printf("[INFO] Guzuta")
-	travis := travis.NewClient("64c3acc2c2a010d18e6314ba9db85df51d4f7ea2")
-	token, err := travis.Authenticate()
-	if err != nil {
-		log.Printf("[INFO] Travis error : %#v", err)
+	// fmt.Println("Guzuta")
+	travis := travis.NewClient(utils.Getenv("GUZUTA_TRAVIS_GITHUB_TOKEN"))
+	// err := travis.Authenticate()
+	// if err != nil {
+	// 	colorstring.Printf("[red] Travis error : %s", err.Error())
+	// 	return
+	// }
+	if len(travisRepository) > 0 {
+		travisRepositoryStatus(travis, travisRepository)
 		return
 	}
-	log.Printf("[INFO] Done %v", token)
+	if len(travisRepositories) > 0 {
+		travisRepositoriesStatus(travis, travisRepositories)
+		return
+	}
 }

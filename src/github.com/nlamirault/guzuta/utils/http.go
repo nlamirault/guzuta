@@ -15,15 +15,23 @@
 package utils
 
 import (
+	"encoding/json"
 	//"fmt"
-	"os"
+	//"io"
+	"io/ioutil"
+	"log"
+	"net/http"
 )
 
-// UserHomeDir return the user home directory
-func UserHomeDir() string {
-	return os.Getenv("HOME")
-}
-
-func Getenv(key string) string {
-	return os.Getenv(key)
+func DecodeResponse(resp *http.Response, v interface{}) error {
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	log.Printf("[DEBUG] [travis] Body response: %s", string(body))
+	err = json.Unmarshal(body, v)
+	if err != nil {
+		return err
+	}
+	return nil
 }

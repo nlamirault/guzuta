@@ -15,9 +15,11 @@
 package travis
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/nlamirault/guzuta/utils"
 )
 
 type AuthenticateInput struct {
@@ -29,21 +31,20 @@ type AuthenticateOutput struct {
 }
 
 // Authenticate retrieve access token
-func (c *Client) Authenticate() (*AuthenticateOutput, error) {
-	log.Printf("[INFO] [travis] Authenticate")
+func (c *Client) Authenticate() error {
+	log.Printf("[DEBUG] [travis] Authenticate")
 	var token *AuthenticateOutput
-	resp, err := c.Do("POST", "auth/github", &AuthenticateInput{Token: c.Token})
+	resp, err := c.Do("POST", "auth/github", AuthenticateInput{Token: c.Token})
 	if err != nil {
-		return nil, err
+		return err
 	}
+	log.Printf("[DEBUG] [travis] Response : %#v %s", resp, resp.StatusCode)
 	defer resp.Body.Close()
-	log.Printf("[DEBUG] [travis] Authenticate response: %#v", resp)
-	if resp.StatusCode == http.StatusOK {
-		err := json.NewDecoder(resp.Body).Decode(&token)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("[DEBUG] [travis] Authorization: %v", token)
+	if resp.StatusCode != http.StatusOK {
+		return nil
 	}
-	return token, nil
+	utils.DecodeResponse(resp, &token)
+	log.Printf("[DEBUG] [travis] Authorization: %v", token)
+	c.AccessToken = token.Token
+	return nil
 }
