@@ -13,21 +13,15 @@
 # limitations under the License.
 
 APP="guzuta"
-EXE="scaleway"
+EXE="bin/guzuta"
 
 SHELL = /bin/bash
 
 DIR = $(shell pwd)
-GO_PATH = .
 
 DOCKER = docker
 
-GB=$(GOPATH)/bin/gb
-GODEP= $(GOPATH)/bin/godep
-GOLINT= $(GOPATH)/bin/golint
-ERRCHECK= $(GOPATH)/bin/errcheck
-GOVER= $(GOPATH)/bin/gover
-GOVERALLS= $(GOPATH)/bin/goveralls
+GB = gb
 
 NO_COLOR=\033[0m
 OK_COLOR=\033[32;01m
@@ -36,8 +30,11 @@ WARN_COLOR=\033[33;01m
 
 SRC=src/github.com/nlamirault/guzuta
 
+SRCS = $(shell git ls-files '*.go' | grep -v '^vendor/')
+PKGS = $(shell find src -type f -print0 | xargs -0 -n 1 dirname | sort -u|sed -e "s/^src\///g")
+
 VERSION=$(shell \
-        grep "const Version" $(SRC)/version/version.go \
+        grep "const Version" $(SRC)/version.go \
         |awk -F'=' '{print $$2}' \
         |sed -e "s/[^0-9.]//g" \
 	|sed -e "s/ //g")
@@ -49,18 +46,18 @@ all: help
 
 help:
 	@echo -e "$(OK_COLOR)==== $(APP) [$(VERSION)] ====$(NO_COLOR)"
-	@echo -e "$(WARN_COLOR)init$(NO_COLOR)    :  Install requirements"
-	@echo -e "$(WARN_COLOR)deps$(NO_COLOR)    :  Install dependencies"
-	@echo -e "$(WARN_COLOR)build$(NO_COLOR)   :  Make all binaries"
-	@echo -e "$(WARN_COLOR)test$(NO_COLOR)    :  Launch unit tests"
-	@echo -e "$(WARN_COLOR)style$(NO_COLOR)   :  Check golang style"
-	@echo -e "$(WARN_COLOR)clean$(NO_COLOR)   :  Cleanup"
-	@echo -e "$(WARN_COLOR)reset$(NO_COLOR)   :  Remove all dependencies"
-	@echo -e "$(WARN_COLOR)release$(NO_COLOR) :  Make a new release"
+	@echo -e "$(WARN_COLOR)init$(NO_COLOR)     :  Install requirements"
+	@echo -e "$(WARN_COLOR)build$(NO_COLOR)    :  Make all binaries"
+	@echo -e "$(WARN_COLOR)test$(NO_COLOR)     :  Launch unit tests"
+	@echo -e "$(WARN_COLOR)lint$(NO_COLOR)     :  Launch golint"
+	@echo -e "$(WARN_COLOR)vet$(NO_COLOR)      :  Launch go vet"
+	@echo -e "$(WARN_COLOR)coverage$(NO_COLOR) :  Launch code coverage"
+	@echo -e "$(WARN_COLOR)clean$(NO_COLOR)    :  Cleanup"
+	@echo -e "$(WARN_COLOR)release$(NO_COLOR)  :  Make a new release"
 
 clean:
 	@echo -e "$(OK_COLOR)[$(APP)] Cleanup$(NO_COLOR)"
-	@rm -f $(EXE) $(APP)-*.tar.gz coverage.out guzuta.test gover.coverprofile
+	@rm -fr $(EXE) $(APP)-*.tar.gz pkg bin $(APP)_*
 
 .PHONY: init
 init:
@@ -69,49 +66,32 @@ init:
 	@go get -u github.com/constabulary/gb/...
 	@go get -u github.com/golang/lint/golint
 	@go get -u github.com/kisielk/errcheck
+	@go get -u golang.org/x/tools/cmd/oracle
 
-deps:
-	@echo -e "$(OK_COLOR)[$(APP)] Install dependancies$(NO_COLOR)"
-	@GOPATH=$(GO_PATH) $(GODEP) restore
-
+.PHONY: build
 build:
 	@echo -e "$(OK_COLOR)[$(APP)] Build $(NO_COLOR)"
-	$(GB) build all
+	@$(GB) build all
 
-doc:
-	@GOPATH=$(GO_PATH) godoc -v -http=:6060
-
-fmt:
-	@echo -e "$(OK_COLOR)[$(APP)] Launch fmt $(NO_COLOR)"
-	@go fmt ./...
-
-errcheck:
-	@echo -e "$(OK_COLOR)[$(APP)] Launch errcheck $(NO_COLOR)"
-	@$(ERRCHECK) ./...
-
-vet:
-	@echo -e "$(OK_COLOR)[$(APP)] Launch vet $(NO_COLOR)"
-	@go vet github.com/nlamirault/guzuta
-
-lint:
-	@echo -e "$(OK_COLOR)[$(APP)] Launch golint $(NO_COLOR)"
-	@$(GOLINT) src/github.com/nlamirault/guzuta/...
-
-style: fmt vet lint
-
+.PHONY: test
 test:
 	@echo -e "$(OK_COLOR)[$(APP)] Launch unit tests $(NO_COLOR)"
-	@$(GB) test all
+	@$(GB) test all -test.v=true
 
+.PHONY: lint
+lint:
+	@$(foreach file,$(SRCS),golint $(file) || exit;)
+
+.PHONY: vet
+vet:
+	@$(foreach file,$(SRCS),go vet $(file) || exit;)
+
+.PHONY: coverage
 coverage:
-	@echo -e "$(OK_COLOR)[$(APP)] Launch code coverage $(NO_COLOR)"
-	@go test ./... -cover
+	@$(foreach pkg,$(PKGS),env GOPATH=`pwd`:`pwd`/vendor go test -cover $(pkg) || exit;)
 
-coveralls:
-	@GOPATH=$(GO_PATH) go get github.com/mattn/goveralls
-	@GOPATH=$(GO_PATH) $(DIR)/addons/coverage --coveralls
-
-release: clean build
+.PHONY: release
+release: clean build test lint vet
 	@echo -e "$(OK_COLOR)[$(APP)] Make archive $(VERSION) $(NO_COLOR)"
 	@rm -fr $(PACKAGE) && mkdir $(PACKAGE)
 	@cp -r $(EXE) $(PACKAGE)
@@ -120,6 +100,7 @@ release: clean build
 	@rm -fr $(PACKAGE)
 	@addons/github.sh $(VERSION)
 
-# for go-projectile
+# for goprojectile
+.PHONY: gopath
 gopath:
-	@echo ${GOPATH}
+	echo GOPATH=`pwd`:`pwd`/vendor

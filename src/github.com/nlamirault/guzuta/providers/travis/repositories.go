@@ -62,7 +62,10 @@ func (c *Client) GetRepository(name string) (*RepositoryOutput, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusOK {
-		utils.DecodeResponse(resp, &repository)
+		err = utils.DecodeResponse(resp, &repository)
+		if err != nil {
+			return nil, err
+		}
 		log.Printf("[DEBUG] Repository: %v", repository)
 	}
 	return repository, nil
@@ -81,7 +84,10 @@ func (c *Client) GetRepositories(namespace string) (*RepositoriesOutput, error) 
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusOK {
-		utils.DecodeResponse(resp, &repositories)
+		err = utils.DecodeResponse(resp, &repositories)
+		if err != nil {
+			return nil, err
+		}
 		log.Printf("[DEBUG] Repositories: %v", repositories)
 	}
 	return repositories, nil

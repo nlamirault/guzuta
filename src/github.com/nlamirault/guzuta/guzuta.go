@@ -21,8 +21,9 @@ import (
 
 	"github.com/mitchellh/colorstring"
 
-	"github.com/nlamirault/guzuta/ci/travis"
 	"github.com/nlamirault/guzuta/logging"
+	"github.com/nlamirault/guzuta/providers/circleci"
+	"github.com/nlamirault/guzuta/providers/travis"
 	"github.com/nlamirault/guzuta/utils"
 	"github.com/nlamirault/guzuta/version"
 )
@@ -37,6 +38,8 @@ var (
 	showVersion        bool
 	travisRepository   string
 	travisRepositories string
+	circleciProject    string
+	circleciUsername   string
 )
 
 func init() {
@@ -47,6 +50,8 @@ func init() {
 	// Travis
 	flag.StringVar(&travisRepository, "travis-name", "", "Status of repository")
 	flag.StringVar(&travisRepositories, "travis-namespace", "", "Status of repositories")
+	flag.StringVar(&circleciProject, "circleci-project", "", "Project name")
+	flag.StringVar(&circleciUsername, "circleci-username", "", "Username")
 	flag.Parse()
 }
 
@@ -60,12 +65,11 @@ func travisRepositoryStatus(travis *travis.Client, name string) {
 		colorstring.Printf("[red] Travis : %s", err.Error())
 		return
 	}
-	color := "green"
+	status := "[green] OK"
 	if resp.Repository.LastBuildState == "failed" {
-		color = "red"
+		status = "[red] KO"
 	}
-	fmt.Printf(resp.Repository.Slug + "\t" +
-		colorstring.Color("["+color+"]"+resp.Repository.LastBuildState) + "\n")
+	fmt.Printf(colorstring.Color(status) + "\t" + resp.Repository.Slug + "\n")
 }
 
 func travisRepositoriesStatus(travis *travis.Client, namespace string) {
@@ -75,12 +79,47 @@ func travisRepositoriesStatus(travis *travis.Client, namespace string) {
 		return
 	}
 	for _, repo := range resp.Repositories {
-		color := "green"
+		status := "[green] OK"
 		if repo.LastBuildState == "failed" {
-			color = "red"
+			status = "[red] KO"
 		}
-		fmt.Printf(repo.Slug + "\t" +
-			colorstring.Color("["+color+"]"+repo.LastBuildState) + "\n")
+		fmt.Printf(colorstring.Color(status) + "\t" + repo.Slug + "\n")
+	}
+}
+
+func circleciProjectStatus(client *circleci.Client, username string, project string) {
+	resp, err := client.GetProject(&circleci.ProjectInput{
+		Username: username,
+		Project:  project,
+		Limit:    1,
+	})
+	if err != nil {
+		colorstring.Printf("[red] Circleci : %s", err.Error())
+		return
+	}
+	for _, p := range *resp {
+		status := "[green] OK"
+		if p.Outcome == "failed" {
+			status = "[red] KO"
+		}
+		fmt.Printf(colorstring.Color(status) + "\t" +
+			fmt.Sprintf("%s/%s", username, project) + "\n")
+	}
+}
+
+func circleciProjectsStatus(client *circleci.Client) {
+	resp, err := client.GetProjects()
+	if err != nil {
+		colorstring.Printf("[red] Circleci : %s", err.Error())
+		return
+	}
+	for _, p := range *resp {
+		status := "[green] OK"
+		if p.Branches.Master.RecentBuilds[0].Outcome == "failed" {
+			status = "[red] KO"
+		}
+		fmt.Printf(colorstring.Color(status) + "\t" +
+			fmt.Sprintf("%s/%s", p.Username, p.Reponame) + "\n")
 	}
 }
 
@@ -94,8 +133,8 @@ func main() {
 		fmt.Printf("%s v%s\n", APP, version.Version)
 		return
 	}
-	// fmt.Println("Guzuta")
 	travis := travis.NewClient(utils.Getenv("GUZUTA_TRAVIS_GITHUB_TOKEN"))
+	circleci := circleci.NewClient(utils.Getenv("GUZUTA_CIRCLECI_TOKEN"))
 	// err := travis.Authenticate()
 	// if err != nil {
 	// 	colorstring.Printf("[red] Travis error : %s", err.Error())
@@ -107,6 +146,14 @@ func main() {
 	}
 	if len(travisRepositories) > 0 {
 		travisRepositoriesStatus(travis, travisRepositories)
+		return
+	}
+	if len(circleciProject) > 0 && len(circleciUsername) > 0 {
+		circleciProjectStatus(circleci, circleciUsername, circleciProject)
+		return
+	}
+	if len(circleciUsername) > 0 {
+		circleciProjectsStatus(circleci)
 		return
 	}
 }
