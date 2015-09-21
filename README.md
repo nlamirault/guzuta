@@ -62,9 +62,13 @@ You must have an **access token** to use the CLI.
 
         $ make build
 
-* Launch unit tests :
+* Launch all unit tests :
 
         $ make test
+
+* Launch some unit tests :
+
+        $ gb test github.com/nlamirault/guzuta/providers/gitlab/
 
 * Check code coverage for project or specific package :
 

@@ -17,7 +17,7 @@ package circleci
 import (
 	// "bytes"
 	// "encoding/json"
-	//"fmt"
+	// "fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -43,10 +43,6 @@ type Client struct {
 
 	// The HTTP client to use when sending requests.
 	HTTPClient *http.Client
-}
-
-type APIError struct {
-	Message string `json:"message"`
 }
 
 // NewClient returns a new CircleCI API client instance
@@ -75,8 +71,4 @@ func (c *Client) EndPoint() *url.URL {
 
 func (c *Client) GetHTTPClient() *http.Client {
 	return c.HTTPClient
-}
-
-func (c *Client) Do(method, urlStr string, body interface{}) (*http.Response, error) {
-	return providers.PerformRequest(c, method, urlStr, body)
 }

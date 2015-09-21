@@ -20,9 +20,9 @@ import (
 	//"io"
 	//"io/ioutil"
 	"log"
-	"net/http"
+	//"net/http"
 
-	"github.com/nlamirault/guzuta/utils"
+	"github.com/nlamirault/guzuta/providers"
 )
 
 // type RepositoryInput struct {
@@ -53,20 +53,14 @@ type RepositoriesOutput struct {
 func (c *Client) GetRepository(name string) (*RepositoryOutput, error) {
 	log.Printf("[DEBUG] Get repository: %s", name)
 	var repository *RepositoryOutput
-	resp, err := c.Do(
+	err := providers.Do(
+		c,
 		"GET",
 		fmt.Sprintf("repos/%s", name),
-		nil) //&AuthenticateInput{Token: c.Token})
+		nil,
+		&repository)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		err = utils.DecodeResponse(resp, &repository)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("[DEBUG] Repository: %v", repository)
 	}
 	return repository, nil
 }
@@ -75,20 +69,14 @@ func (c *Client) GetRepository(name string) (*RepositoryOutput, error) {
 func (c *Client) GetRepositories(namespace string) (*RepositoriesOutput, error) {
 	log.Printf("[DEBUG] Get repository: %s", namespace)
 	var repositories *RepositoriesOutput
-	resp, err := c.Do(
+	err := providers.Do(
+		c,
 		"GET",
 		fmt.Sprintf("repos/%s", namespace),
-		nil) //&AuthenticateInput{Token: c.Token})
+		nil,
+		&repositories)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		err = utils.DecodeResponse(resp, &repositories)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("[DEBUG] Repositories: %v", repositories)
 	}
 	return repositories, nil
 }

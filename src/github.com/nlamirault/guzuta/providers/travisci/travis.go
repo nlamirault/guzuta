@@ -80,7 +80,3 @@ func (c *Client) EndPoint() *url.URL {
 func (c *Client) GetHTTPClient() *http.Client {
 	return c.HTTPClient
 }
-
-func (c *Client) Do(method, urlStr string, body interface{}) (*http.Response, error) {
-	return providers.PerformRequest(c, method, urlStr, body)
-}

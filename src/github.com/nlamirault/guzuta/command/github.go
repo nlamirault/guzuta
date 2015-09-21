@@ -53,7 +53,7 @@ func (c *GithubCommand) Run(args []string) int {
 	f := flag.NewFlagSet("github", flag.ContinueOnError)
 	f.Usage = func() { c.UI.Output(c.Help()) }
 	f.BoolVar(&debug, "debug", false, "Debug mode enabled")
-	f.StringVar(&name, "name", "", "GithubCI project's name")
+	f.StringVar(&name, "name", "", "Github project's name")
 	f.StringVar(&username, "username", "", "Github username")
 	f.StringVar(&token, "token", utils.Getenv("GUZUTA_GITHUB_TOKEN"), "API token")
 

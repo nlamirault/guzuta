@@ -58,5 +58,10 @@ func init() {
 				UI: UI,
 			}, nil
 		},
+		"gitlab": func() (cli.Command, error) {
+			return &GitlabCommand{
+				UI: UI,
+			}, nil
+		},
 	}
 }

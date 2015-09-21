@@ -17,9 +17,9 @@ package travisci
 import (
 	//"encoding/json"
 	"log"
-	"net/http"
+	//"net/http"
 
-	"github.com/nlamirault/guzuta/utils"
+	"github.com/nlamirault/guzuta/providers"
 )
 
 type AuthenticateInput struct {
@@ -34,17 +34,11 @@ type AuthenticateOutput struct {
 func (c *Client) Authenticate() error {
 	log.Printf("[DEBUG] [travis] Authenticate")
 	var token *AuthenticateOutput
-	resp, err := c.Do("POST", "auth/github", AuthenticateInput{Token: c.Token})
-	if err != nil {
-		return err
-	}
-	log.Printf("[DEBUG] [travis] Response : %#v %s", resp, resp.StatusCode)
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil
-	}
-	utils.DecodeResponse(resp, &token)
-	log.Printf("[DEBUG] [travis] Authorization: %v", token)
-	c.AccessToken = token.Token
-	return nil
+	err := providers.Do(
+		c,
+		"POST",
+		"auth/github",
+		AuthenticateInput{Token: c.Token},
+		&token)
+	return err
 }

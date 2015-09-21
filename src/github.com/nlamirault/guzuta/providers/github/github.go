@@ -30,7 +30,7 @@ const (
 	acceptHeader = "application/vnd.github.v3+json"
 )
 
-// Client is the Travis API client
+// Client is the Github API client
 type Client struct {
 
 	// The User Agent of the client
@@ -44,11 +44,6 @@ type Client struct {
 
 	// The HTTP client to use when sending requests.
 	HTTPClient *http.Client
-}
-
-type APIError struct {
-	Message       string `json:"message"`
-	Documentation string `json:"documentation_url"`
 }
 
 // NewClient returns a new Github API client instance
@@ -81,8 +76,4 @@ func (c *Client) EndPoint() *url.URL {
 
 func (c *Client) GetHTTPClient() *http.Client {
 	return c.HTTPClient
-}
-
-func (c *Client) Do(method, urlStr string, body interface{}) (*http.Response, error) {
-	return providers.PerformRequest(c, method, urlStr, body)
 }

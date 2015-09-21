@@ -24,14 +24,24 @@ import (
 )
 
 func DecodeResponse(resp *http.Response, v interface{}) error {
+	log.Printf("[DEBUG] Decode response")
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
-	log.Printf("[DEBUG] [travis] Body response: %s", string(body))
+	log.Printf("[DEBUG] Body response: %d / %s",
+		resp.StatusCode, string(body))
 	err = json.Unmarshal(body, v)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func GetResponseBody(resp *http.Response) (string, error) {
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
 }

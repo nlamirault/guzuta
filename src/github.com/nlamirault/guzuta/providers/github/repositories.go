@@ -16,14 +16,14 @@ package github
 
 import (
 	//"encoding/json"
-	"errors"
+	//"errors"
 	"fmt"
 	//"io"
 	//"io/ioutil"
 	"log"
-	"net/http"
+	//"net/http"
 
-	"github.com/nlamirault/guzuta/utils"
+	"github.com/nlamirault/guzuta/providers"
 )
 
 // User represents a GitHub user.
@@ -135,60 +135,34 @@ type Repository struct {
 	TeamsURL         string `json:"teams_url,omitempty"`
 }
 
-// GetRepositories retrieve all projects for user
+// GetRepositories retrieve all repositories for user
 func (c *Client) GetRepositories(username string) (*[]Repository, error) {
 	log.Printf("[DEBUG] Get repositories : %s", username)
 	var repositories *[]Repository
-	resp, err := c.Do(
+	err := providers.Do(
+		c,
 		"GET",
 		fmt.Sprintf("users/%s/repos", username),
-		nil)
+		nil,
+		&repositories)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		err = utils.DecodeResponse(resp, &repositories)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("[DEBUG] Repositories: %v", repositories)
-	} else {
-		var apiError *APIError
-		err = utils.DecodeResponse(resp, &apiError)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(apiError.Message)
 	}
 	return repositories, nil
 }
 
-// GetRepositories retrieve all projects for user
+// GetRepository retrieve repository for user
 func (c *Client) GetRepository(username string, name string) (*Repository, error) {
 	log.Printf("[DEBUG] Get repository : %s %s", username, name)
 	var repository *Repository
-	resp, err := c.Do(
+	err := providers.Do(
+		c,
 		"GET",
 		fmt.Sprintf("repos/%s/%s", username, name),
-		nil)
+		nil,
+		&repository)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		err = utils.DecodeResponse(resp, &repository)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("[DEBUG] Repository: %v", repository)
-	} else {
-		var apiError *APIError
-		err = utils.DecodeResponse(resp, &apiError)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(apiError.Message)
 	}
 	return repository, nil
 }
