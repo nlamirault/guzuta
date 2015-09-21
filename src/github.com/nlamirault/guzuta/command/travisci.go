@@ -37,9 +37,9 @@ func (c *TravisCICommand) Help() string {
 Usage: guzuta travisci [options]
 	Check projects status from TravisCI
 Options:
-	--debug                       Debug mode enabled
-	--travis-name=name            Project name
-	--travis-namespace=namespace  Namespace
+	--debug                   Debug mode enabled
+	--name=name               Project name
+	--namespace=namespace     Namespace
 `
 	return strings.TrimSpace(helpText)
 }
@@ -54,8 +54,8 @@ func (c *TravisCICommand) Run(args []string) int {
 	f := flag.NewFlagSet("travis", flag.ContinueOnError)
 	f.Usage = func() { c.UI.Output(c.Help()) }
 	f.BoolVar(&debug, "debug", false, "Debug mode enabled")
-	f.StringVar(&name, "travis-name", "", "TravisCI project's name")
-	f.StringVar(&namespace, "travis-namespace", "", "TravisCI namespace")
+	f.StringVar(&name, "name", "", "TravisCI project's name")
+	f.StringVar(&namespace, "namespace", "", "TravisCI namespace")
 
 	if err := f.Parse(args); err != nil {
 		return 1
@@ -67,8 +67,8 @@ func (c *TravisCICommand) Run(args []string) int {
 		logging.SetLogging("INFO")
 	}
 	client := travisci.NewClient(utils.Getenv("GUZUTA_TRAVIS_GITHUB_TOKEN"))
-	if len(name) > 0 {
-		travisRepositoryStatus(client, name)
+	if len(name) > 0 && len(namespace) > 0 {
+		travisRepositoryStatus(client, namespace, name)
 		return 0
 	}
 	if len(namespace) > 0 {
@@ -78,17 +78,13 @@ func (c *TravisCICommand) Run(args []string) int {
 	return 0
 }
 
-func travisRepositoryStatus(client *travisci.Client, name string) {
-	resp, err := client.GetRepository(name)
+func travisRepositoryStatus(client *travisci.Client, namespace string, name string) {
+	resp, err := client.GetRepository(fmt.Sprintf("%s/%s", namespace, name))
 	if err != nil {
 		colorstring.Printf("[red] Travis : %s", err.Error())
 		return
 	}
-	status := "[green] OK"
-	if resp.Repository.LastBuildState == "failed" {
-		status = "[red] KO"
-	}
-	fmt.Printf(colorstring.Color(status) + "\t" + resp.Repository.Slug + "\n")
+	travisPrintRepository(&resp.Repository)
 }
 
 func travisRepositoriesStatus(client *travisci.Client, namespace string) {
@@ -98,10 +94,16 @@ func travisRepositoriesStatus(client *travisci.Client, namespace string) {
 		return
 	}
 	for _, repo := range resp.Repositories {
-		status := "[green] OK"
-		if repo.LastBuildState == "failed" {
-			status = "[red] KO"
-		}
-		fmt.Printf(colorstring.Color(status) + "\t" + repo.Slug + "\n")
+		travisPrintRepository(&repo)
 	}
+}
+
+func travisPrintRepository(repo *travisci.Repository) {
+	status := ""
+	if repo.LastBuildState == "passed" {
+		status = "[green]OK"
+	} else if repo.LastBuildState == "failed" {
+		status = "[red]KO"
+	}
+	fmt.Printf(colorstring.Color(status) + "\t" + repo.Slug + "\n")
 }
