@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package travis
+package travisci
 
 import (
 	// "bytes"
@@ -78,7 +78,7 @@ func (c *Client) Do(method, urlStr string, body interface{}) (*http.Response, er
 	if err != nil {
 		return nil, err
 	}
-	req, err := providers.CreateRequest(method, u.String(), body) //, c.BaseURL, urlStr, body)
+	req, err := providers.CreateRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}

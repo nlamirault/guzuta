@@ -23,7 +23,7 @@ import (
 	"github.com/mitchellh/colorstring"
 
 	"github.com/nlamirault/guzuta/logging"
-	"github.com/nlamirault/guzuta/providers/travis"
+	"github.com/nlamirault/guzuta/providers/travisci"
 	"github.com/nlamirault/guzuta/utils"
 )
 
@@ -66,7 +66,7 @@ func (c *TravisCICommand) Run(args []string) int {
 	} else {
 		logging.SetLogging("INFO")
 	}
-	client := travis.NewClient(utils.Getenv("GUZUTA_TRAVIS_GITHUB_TOKEN"))
+	client := travisci.NewClient(utils.Getenv("GUZUTA_TRAVIS_GITHUB_TOKEN"))
 	if len(name) > 0 {
 		travisRepositoryStatus(client, name)
 		return 0
@@ -78,7 +78,7 @@ func (c *TravisCICommand) Run(args []string) int {
 	return 0
 }
 
-func travisRepositoryStatus(client *travis.Client, name string) {
+func travisRepositoryStatus(client *travisci.Client, name string) {
 	resp, err := client.GetRepository(name)
 	if err != nil {
 		colorstring.Printf("[red] Travis : %s", err.Error())
@@ -91,7 +91,7 @@ func travisRepositoryStatus(client *travis.Client, name string) {
 	fmt.Printf(colorstring.Color(status) + "\t" + resp.Repository.Slug + "\n")
 }
 
-func travisRepositoriesStatus(client *travis.Client, namespace string) {
+func travisRepositoriesStatus(client *travisci.Client, namespace string) {
 	resp, err := client.GetRepositories(namespace)
 	if err != nil {
 		colorstring.Printf("[red] Travis : %s", err.Error())
