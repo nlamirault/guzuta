@@ -41,6 +41,12 @@ var (
 // APIClient represents a client for a REST API
 type APIClient interface {
 
+	// EndPoint returns the API base URL
+	EndPoint() *url.URL
+
+	// GetHTTPClient returns the HTTP client to use
+	GetHTTPClient() *http.Client
+
 	// SetupHeaders add customer headers
 	SetupHeaders(request *http.Request)
 
@@ -95,4 +101,17 @@ func CreateRequest(method, uri string, body interface{}) (*http.Request, error) 
 	}
 	log.Printf("[DEBUG] Request : %v", req)
 	return req, nil
+}
+
+func PerformRequest(client APIClient, method, urlStr string, body interface{}) (*http.Response, error) {
+	u, err := GetURL(client.EndPoint(), urlStr)
+	if err != nil {
+		return nil, err
+	}
+	req, err := CreateRequest(method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+	client.SetupHeaders(req)
+	return client.GetHTTPClient().Do(req)
 }

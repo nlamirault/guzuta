@@ -73,15 +73,14 @@ func (c *Client) SetupHeaders(request *http.Request) {
 	}
 }
 
+func (c *Client) EndPoint() *url.URL {
+	return c.Endpoint
+}
+
+func (c *Client) GetHTTPClient() *http.Client {
+	return c.HTTPClient
+}
+
 func (c *Client) Do(method, urlStr string, body interface{}) (*http.Response, error) {
-	u, err := providers.GetURL(c.Endpoint, urlStr)
-	if err != nil {
-		return nil, err
-	}
-	req, err := providers.CreateRequest(method, u.String(), body)
-	if err != nil {
-		return nil, err
-	}
-	c.SetupHeaders(req)
-	return c.HTTPClient.Do(req)
+	return providers.PerformRequest(c, method, urlStr, body)
 }
