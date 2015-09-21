@@ -13,3 +13,14 @@
 // limitations under the License.
 
 package travisci
+
+import (
+	"testing"
+)
+
+func TestTravisClient(t *testing.T) {
+	client := NewClient("0246813579")
+	if client.UserAgent != "guzuta/0.2.0" {
+		t.Fatalf("Invalid user agent : %s", client.UserAgent)
+	}
+}
