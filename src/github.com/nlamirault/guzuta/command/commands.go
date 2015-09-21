@@ -42,10 +42,6 @@ func init() {
 		ErrorColor:  cli.UiColorRed,
 	}
 
-	// meta := Meta{
-	// 	UI: UI,
-	// }
-
 	Commands = map[string]cli.CommandFactory{
 		"travisci": func() (cli.Command, error) {
 			return &TravisCICommand{

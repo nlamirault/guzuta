@@ -45,6 +45,10 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
+type APIError struct {
+	Message string `json:"message"`
+}
+
 // NewClient returns a new CircleCI API client instance
 func NewClient(token string) *Client {
 	log.Printf("[DEBUG] [circleci] Client creation : %s", token)

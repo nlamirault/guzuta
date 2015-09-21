@@ -16,6 +16,7 @@ package circleci
 
 import (
 	//"encoding/json"
+	"errors"
 	"fmt"
 	//"io"
 	//"io/ioutil"
@@ -86,11 +87,6 @@ func (c *Client) GetProjects() (*[]Project, error) {
 
 // GetProject retrieve repositorys by name
 func (c *Client) GetProject(input *ProjectInput) (*[]Build, error) {
-	// input := &ProjectInput{
-	// 	Username: "nlamirault",
-	// 	Project:  "gotest.el",
-	// 	Limit:    1,
-	// }
 	log.Printf("[DEBUG] Get project: %s %s", input.Username, input.Project)
 	var project *[]Build
 	resp, err := c.Do(
@@ -108,6 +104,13 @@ func (c *Client) GetProject(input *ProjectInput) (*[]Build, error) {
 			return nil, err
 		}
 		log.Printf("[DEBUG] Project: %#v", project)
+	} else {
+		var apiError *APIError
+		err = utils.DecodeResponse(resp, &apiError)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(apiError.Message)
 	}
 	return project, nil
 }

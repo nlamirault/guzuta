@@ -84,7 +84,7 @@ func circleciProjectStatus(client *circleci.Client, username string, project str
 		Limit:    1,
 	})
 	if err != nil {
-		colorstring.Printf("[red] Circleci : %s", err.Error())
+		colorstring.Printf("[red] CircleCI : %s\n", err.Error())
 		return
 	}
 	for _, p := range *resp {
@@ -100,7 +100,7 @@ func circleciProjectStatus(client *circleci.Client, username string, project str
 func circleciProjectsStatus(client *circleci.Client) {
 	resp, err := client.GetProjects()
 	if err != nil {
-		colorstring.Printf("[red] Circleci : %s", err.Error())
+		colorstring.Printf("[red] CircleCI : %s\n", err.Error())
 		return
 	}
 	for _, p := range *resp {

@@ -21,6 +21,7 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
+	"github.com/mitchellh/colorstring"
 
 	"github.com/nlamirault/guzuta/command"
 	"github.com/nlamirault/guzuta/version"
@@ -37,7 +38,8 @@ func main() {
 
 	exitCode, err := cli.Run()
 	if err != nil {
-		fmt.Printf("[red] Error executing CLI: %s\n", err)
+		fmt.Printf(colorstring.Color(
+			"[red] Error executing CLI: " + err.Error() + "\n"))
 		return
 	}
 
