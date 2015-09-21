@@ -26,25 +26,25 @@ var (
 	description = "Container Cluster Manager from Google"
 )
 
-func TestRetrieveRepositories(t *testing.T) {
+func TestRetrieveTravisRepositories(t *testing.T) {
 	client := NewClient("0246813579")
 	resp, _ := client.GetRepositories(namespace)
 	for _, repo := range resp.Repositories {
 		if !strings.HasPrefix(repo.Slug, namespace) {
-			t.Fatalf("Invalid Slug : %s", repo)
+			t.Fatalf("Invalid Slug : %#v", repo)
 		}
 	}
 }
 
-func TestRetrieveRepository(t *testing.T) {
+func TestRetrieveTravisRepository(t *testing.T) {
 	client := NewClient("0246813579")
 	slug := fmt.Sprintf("%s/%s", namespace, name)
 	resp, _ := client.GetRepository(slug)
-	fmt.Printf("=> %#v", resp.Repository)
+	//fmt.Printf("=> %#v", resp.Repository)
 	if !strings.HasPrefix(resp.Repository.Slug, slug) {
 		t.Fatalf("Invalid Slug : %s", resp.Repository)
 	}
 	if resp.Repository.Description != description {
-		t.Fatalf("Invalid Description : %s", resp.Repository)
+		t.Fatalf("Invalid Description : %#v", resp.Repository)
 	}
 }

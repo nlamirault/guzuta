@@ -69,6 +69,7 @@ func (c *CircleCICommand) Run(args []string) int {
 	}
 	// token := utils.Getenv("GUZUTA_CIRCLECI_TOKEN")
 	if len(token) <= 0 {
+		c.UI.Error("CircleCI token invalid. Set CLI argument or GUZUTA_CIRCLECI_TOKEN environment variable.")
 		return 1
 	}
 	client := circleci.NewClient(token)

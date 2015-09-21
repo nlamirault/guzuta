@@ -81,6 +81,13 @@ func (c *Client) GetProjects() (*[]Project, error) {
 			return nil, err
 		}
 		log.Printf("[DEBUG] Project: %v", projects)
+	} else {
+		var apiError *APIError
+		err = utils.DecodeResponse(resp, &apiError)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(apiError.Message)
 	}
 	return projects, nil
 }

@@ -53,5 +53,10 @@ func init() {
 				UI: UI,
 			}, nil
 		},
+		"github": func() (cli.Command, error) {
+			return &GithubCommand{
+				UI: UI,
+			}, nil
+		},
 	}
 }
