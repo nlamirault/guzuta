@@ -12,34 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package command
 
 import (
-	//"flag"
-	"fmt"
-	//"log"
-	"os"
-
 	"github.com/mitchellh/cli"
-
-	"github.com/nlamirault/guzuta/command"
-	"github.com/nlamirault/guzuta/version"
 )
 
-func main() {
-	cli := &cli.CLI{
-		Args:       os.Args[1:],
-		Commands:   command.Commands,
-		HelpFunc:   cli.BasicHelpFunc("guzuta"),
-		HelpWriter: os.Stdout,
-		Version:    version.Version,
-	}
+type TravisCICommand struct {
+	UI cli.Ui
+}
 
-	exitCode, err := cli.Run()
-	if err != nil {
-		fmt.Printf("[red] Error executing CLI: %s\n", err)
-		return
-	}
+func (c *TravisCICommand) Help() string {
+}
 
-	os.Exit(exitCode)
+func (c *TravisCICommand) Synopsis() string {
+	return "Check projects status from TravisCI"
+}
+
+func (c *TravisCICommand) Run(args []string) int {
 }

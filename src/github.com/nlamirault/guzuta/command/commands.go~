@@ -15,31 +15,43 @@
 package main
 
 import (
-	//"flag"
-	"fmt"
-	//"log"
 	"os"
 
 	"github.com/mitchellh/cli"
 
 	"github.com/nlamirault/guzuta/command"
-	"github.com/nlamirault/guzuta/version"
 )
 
-func main() {
-	cli := &cli.CLI{
-		Args:       os.Args[1:],
-		Commands:   command.Commands,
-		HelpFunc:   cli.BasicHelpFunc("guzuta"),
-		HelpWriter: os.Stdout,
-		Version:    version.Version,
+// Commands is the mapping of all the available Terraform commands.
+var (
+	Commands map[string]cli.CommandFactory
+	UI       cli.Ui
+)
+
+type Meta struct {
+	UI cli.Ui
+}
+
+func init() {
+	Ui = &cli.ColoredUi{
+		Ui: &cli.BasicUi{
+			Writer:      os.Stdout,
+			Reader:      os.Stdin,
+			ErrorWriter: os.Stderr},
+		OutputColor: cli.UiColorNone,
+		InfoColor:   cli.UiColorNone,
+		ErrorColor:  cli.UiColorRed,
 	}
 
-	exitCode, err := cli.Run()
-	if err != nil {
-		fmt.Printf("[red] Error executing CLI: %s\n", err)
-		return
+	meta := Meta{
+		UI: Ui,
 	}
 
-	os.Exit(exitCode)
+	Commands = map[string]cli.CommandFactory{
+		"version": func() (cli.Command, error) {
+			return &VersionCommand{
+				Meta: meta,
+			}, nil
+		},
+	}
 }
