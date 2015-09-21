@@ -39,6 +39,7 @@ Options:
 	--debug                       Debug mode enabled
 	--name=name                   Project name
 	--username=username           Username
+        --token=xxxx                  API Token
 `
 	return strings.TrimSpace(helpText)
 }
@@ -49,12 +50,13 @@ func (c *CircleCICommand) Synopsis() string {
 
 func (c *CircleCICommand) Run(args []string) int {
 	var debug bool
-	var name, username string
+	var name, username, token string
 	f := flag.NewFlagSet("circle", flag.ContinueOnError)
 	f.Usage = func() { c.UI.Output(c.Help()) }
 	f.BoolVar(&debug, "debug", false, "Debug mode enabled")
 	f.StringVar(&name, "name", "", "CircleCI project's name")
 	f.StringVar(&username, "username", "", "CircleCI username")
+	f.StringVar(&token, "token", utils.Getenv("GUZUTA_CIRCLECI_TOKEN"), "API Token")
 
 	if err := f.Parse(args); err != nil {
 		return 1
@@ -65,7 +67,11 @@ func (c *CircleCICommand) Run(args []string) int {
 	} else {
 		logging.SetLogging("INFO")
 	}
-	client := circleci.NewClient(utils.Getenv("GUZUTA_CIRCLECI_TOKEN"))
+	// token := utils.Getenv("GUZUTA_CIRCLECI_TOKEN")
+	if len(token) <= 0 {
+		return 1
+	}
+	client := circleci.NewClient(token)
 	if len(name) > 0 && len(username) > 0 {
 		circleciProjectStatus(client, username, name)
 		return 0
