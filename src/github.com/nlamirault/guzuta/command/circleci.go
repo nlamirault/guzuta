@@ -22,7 +22,7 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/colorstring"
 
-	"github.com/nlamirault/guzuta/logging"
+	//"github.com/nlamirault/guzuta/logging"
 	"github.com/nlamirault/guzuta/providers/circleci"
 	"github.com/nlamirault/guzuta/utils"
 )
@@ -61,12 +61,7 @@ func (c *CircleCICommand) Run(args []string) int {
 	if err := f.Parse(args); err != nil {
 		return 1
 	}
-	if debug {
-		c.UI.Info("Debug mode enabled.")
-		logging.SetLogging("DEBUG")
-	} else {
-		logging.SetLogging("INFO")
-	}
+	setupLogging(debug)
 	// token := utils.Getenv("GUZUTA_CIRCLECI_TOKEN")
 	if len(token) <= 0 {
 		c.UI.Error("CircleCI token invalid. Set CLI argument or GUZUTA_CIRCLECI_TOKEN environment variable.")
@@ -100,8 +95,8 @@ func (c *CircleCICommand) circleciProjectStatus(client *circleci.Client, usernam
 		if p.Outcome == "failed" {
 			status = "[red] KO"
 		}
-		c.UI.Error(colorstring.Color(status) + "\t" +
-			fmt.Sprintf("%s/%s", username, project) + "\n")
+		c.UI.Info(colorstring.Color(status + "\t" +
+			fmt.Sprintf("%s/%s", username, project)))
 	}
 }
 
@@ -117,7 +112,7 @@ func (c *CircleCICommand) circleciProjectsStatus(client *circleci.Client) {
 		if p.Branches.Master.RecentBuilds[0].Outcome == "failed" {
 			status = "[red] KO"
 		}
-		c.UI.Error(colorstring.Color(status) + "\t" +
-			fmt.Sprintf("%s/%s", p.Username, p.Reponame) + "\n")
+		c.UI.Info(colorstring.Color(status + "\t" +
+			fmt.Sprintf("%s/%s", p.Username, p.Reponame)))
 	}
 }

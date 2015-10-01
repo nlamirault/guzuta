@@ -22,7 +22,7 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/colorstring"
 
-	"github.com/nlamirault/guzuta/logging"
+	//"github.com/nlamirault/guzuta/logging"
 	"github.com/nlamirault/guzuta/providers/github"
 	"github.com/nlamirault/guzuta/utils"
 )
@@ -76,12 +76,7 @@ func (c *GithubCommand) Run(args []string) int {
 			c.Help())
 		return 1
 	}
-	if debug {
-		c.UI.Info("Debug mode enabled.")
-		logging.SetLogging("DEBUG")
-	} else {
-		logging.SetLogging("INFO")
-	}
+	setupLogging(debug)
 	if action[0] == "get" {
 		if len(name) > 0 && len(username) > 0 {
 			githubRepositoryStatus(getGithubClient(), username, name)

@@ -22,7 +22,7 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/colorstring"
 
-	"github.com/nlamirault/guzuta/logging"
+	//"github.com/nlamirault/guzuta/logging"
 	"github.com/nlamirault/guzuta/providers/travisci"
 	"github.com/nlamirault/guzuta/utils"
 )
@@ -60,50 +60,45 @@ func (c *TravisCICommand) Run(args []string) int {
 	if err := f.Parse(args); err != nil {
 		return 1
 	}
-	if debug {
-		c.UI.Info("Debug mode enabled.")
-		logging.SetLogging("DEBUG")
-	} else {
-		logging.SetLogging("INFO")
-	}
+	setupLogging(debug)
 	client := travisci.NewClient(utils.Getenv("GUZUTA_TRAVIS_GITHUB_TOKEN"))
 	if len(name) > 0 && len(namespace) > 0 {
-		travisRepositoryStatus(client, namespace, name)
+		c.travisRepositoryStatus(client, namespace, name)
 		return 0
 	}
 	if len(namespace) > 0 {
-		travisRepositoriesStatus(client, namespace)
+		c.travisRepositoriesStatus(client, namespace)
 		return 0
 	}
 	return 0
 }
 
-func travisRepositoryStatus(client *travisci.Client, namespace string, name string) {
+func (c *TravisCICommand) travisRepositoryStatus(client *travisci.Client, namespace string, name string) {
 	resp, err := client.GetRepository(fmt.Sprintf("%s/%s", namespace, name))
 	if err != nil {
-		colorstring.Printf("[red] Travis : %s", err.Error())
+		c.UI.Error(colorstring.Color("[red] Travis : " + err.Error()))
 		return
 	}
-	travisPrintRepository(&resp.Repository)
+	c.travisPrintRepository(&resp.Repository)
 }
 
-func travisRepositoriesStatus(client *travisci.Client, namespace string) {
+func (c *TravisCICommand) travisRepositoriesStatus(client *travisci.Client, namespace string) {
 	resp, err := client.GetRepositories(namespace)
 	if err != nil {
-		colorstring.Printf("[red] Travis : %s", err.Error())
+		c.UI.Error(colorstring.Color("[red] Travis : " + err.Error()))
 		return
 	}
 	for _, repo := range resp.Repositories {
-		travisPrintRepository(&repo)
+		c.travisPrintRepository(&repo)
 	}
 }
 
-func travisPrintRepository(repo *travisci.Repository) {
+func (c *TravisCICommand) travisPrintRepository(repo *travisci.Repository) {
 	status := ""
 	if repo.LastBuildState == "passed" {
 		status = "[green]OK"
 	} else if repo.LastBuildState == "failed" {
 		status = "[red]KO"
 	}
-	fmt.Printf(colorstring.Color(status) + "\t" + repo.Slug + "\n")
+	c.UI.Info(colorstring.Color(status + "\t" + repo.Slug))
 }

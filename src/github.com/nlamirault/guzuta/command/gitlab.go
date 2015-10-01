@@ -22,12 +22,12 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/colorstring"
 
-	"github.com/nlamirault/guzuta/logging"
+	// "github.com/nlamirault/guzuta/logging"
 	"github.com/nlamirault/guzuta/providers/gitlab"
 	"github.com/nlamirault/guzuta/utils"
 )
 
-// GitlabCICommand represents CLI command for Gitlab provider
+// GitlabCommand represents CLI command for Gitlab provider
 type GitlabCommand struct {
 	UI cli.Ui
 }
@@ -75,12 +75,7 @@ func (c *GitlabCommand) Run(args []string) int {
 			c.Help())
 		return 1
 	}
-	if debug {
-		c.UI.Info("Debug mode enabled.")
-		logging.SetLogging("DEBUG")
-	} else {
-		logging.SetLogging("INFO")
-	}
+	setupLogging(debug)
 	if action[0] == "get" {
 		if len(name) > 0 && len(namespace) > 0 {
 			gitlabProjectStatus(getGitlabClient(), namespace, name)

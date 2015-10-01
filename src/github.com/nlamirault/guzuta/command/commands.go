@@ -18,6 +18,8 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
+
+	"github.com/nlamirault/guzuta/logging"
 )
 
 // Commands is the mapping of all the available Terraform commands.
@@ -70,4 +72,12 @@ func errorMessage(ui cli.Ui, msg string, help string) {
 	ui.Error(msg)
 	ui.Error("")
 	ui.Error(help)
+}
+
+func setupLogging(debug bool) {
+	if debug {
+		logging.SetLogging("DEBUG")
+	} else {
+		logging.SetLogging("INFO")
+	}
 }
