@@ -65,3 +65,9 @@ func init() {
 		},
 	}
 }
+
+func errorMessage(ui cli.Ui, msg string, help string) {
+	ui.Error(msg)
+	ui.Error("")
+	ui.Error(help)
+}

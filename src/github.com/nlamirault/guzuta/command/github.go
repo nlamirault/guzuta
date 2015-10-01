@@ -34,17 +34,24 @@ type GithubCommand struct {
 
 func (c *GithubCommand) Help() string {
 	helpText := `
-Usage: guzuta github [options]
-	Check projects status from Github
+Usage: guzuta github [options] actions
+
+   Manage projects from Github
+
+Actions:
+       get   : Describe a project
+       list  : List all projects
+
 Options:
 	--debug                   Debug mode enabled
 	--name=name               Project name
-	--username=username       Github username`
+	--username=username       Github username
+`
 	return strings.TrimSpace(helpText)
 }
 
 func (c *GithubCommand) Synopsis() string {
-	return "Check projects status from Github"
+	return "Manage projects from Github"
 }
 
 func (c *GithubCommand) Run(args []string) int {
@@ -60,22 +67,41 @@ func (c *GithubCommand) Run(args []string) int {
 	if err := f.Parse(args); err != nil {
 		return 1
 	}
+	action := f.Args()
+	// fmt.Printf("Args : %v\n", action)
+	if len(action) != 1 {
+		errorMessage(
+			c.UI,
+			"At least one action to github must be specified.",
+			c.Help())
+		return 1
+	}
 	if debug {
 		c.UI.Info("Debug mode enabled.")
 		logging.SetLogging("DEBUG")
 	} else {
 		logging.SetLogging("INFO")
 	}
-	client := github.NewClient(utils.Getenv("GUZUTA_GITHUB_TOKEN"))
-	if len(name) > 0 && len(username) > 0 {
-		githubRepositoryStatus(client, username, name)
-		return 0
-	}
-	if len(username) > 0 {
-		githubRepositoriesStatus(client, username)
-		return 0
+	if action[0] == "get" {
+		if len(name) > 0 && len(username) > 0 {
+			githubRepositoryStatus(getGithubClient(), username, name)
+			return 0
+		}
+		errorMessage(c.UI, "Please specify name and username.", c.Help())
+		return 1
+	} else if action[0] == "list" {
+		if len(username) > 0 {
+			githubRepositoriesStatus(getGithubClient(), username)
+			return 0
+		}
+		errorMessage(c.UI, "Please specify username.", c.Help())
+		return 1
 	}
 	return 0
+}
+
+func getGithubClient() *github.Client {
+	return github.NewClient(utils.Getenv("GUZUTA_GITHUB_TOKEN"))
 }
 
 func githubRepositoryStatus(client *github.Client, username string, name string) {

@@ -74,24 +74,25 @@ func (c *CircleCICommand) Run(args []string) int {
 	}
 	client := circleci.NewClient(token)
 	if len(name) > 0 && len(username) > 0 {
-		circleciProjectStatus(client, username, name)
+		c.circleciProjectStatus(client, username, name)
 		return 0
 	}
 	if len(username) > 0 {
-		circleciProjectsStatus(client)
+		c.circleciProjectsStatus(client)
 		return 0
 	}
 	return 0
 }
 
-func circleciProjectStatus(client *circleci.Client, username string, project string) {
+func (c *CircleCICommand) circleciProjectStatus(client *circleci.Client, username string, project string) {
 	resp, err := client.GetProject(&circleci.ProjectInput{
 		Username: username,
 		Project:  project,
 		Limit:    1,
 	})
 	if err != nil {
-		colorstring.Printf("[red] CircleCI : %s\n", err.Error())
+		c.UI.Error(colorstring.Color("[red] CircleCI") +
+			fmt.Sprintf(" : %s\n", err.Error()))
 		return
 	}
 	for _, p := range *resp {
@@ -99,15 +100,16 @@ func circleciProjectStatus(client *circleci.Client, username string, project str
 		if p.Outcome == "failed" {
 			status = "[red] KO"
 		}
-		fmt.Printf(colorstring.Color(status) + "\t" +
+		c.UI.Error(colorstring.Color(status) + "\t" +
 			fmt.Sprintf("%s/%s", username, project) + "\n")
 	}
 }
 
-func circleciProjectsStatus(client *circleci.Client) {
+func (c *CircleCICommand) circleciProjectsStatus(client *circleci.Client) {
 	resp, err := client.GetProjects()
 	if err != nil {
-		colorstring.Printf("[red] CircleCI : %s\n", err.Error())
+		c.UI.Error(colorstring.Color("[red] CircleCI") +
+			fmt.Sprintf(" : %s\n", err.Error()))
 		return
 	}
 	for _, p := range *resp {
@@ -115,7 +117,7 @@ func circleciProjectsStatus(client *circleci.Client) {
 		if p.Branches.Master.RecentBuilds[0].Outcome == "failed" {
 			status = "[red] KO"
 		}
-		fmt.Printf(colorstring.Color(status) + "\t" +
+		c.UI.Error(colorstring.Color(status) + "\t" +
 			fmt.Sprintf("%s/%s", p.Username, p.Reponame) + "\n")
 	}
 }

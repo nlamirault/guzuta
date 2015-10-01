@@ -16,7 +16,7 @@ package command
 
 import (
 	//"fmt"
-	//"strings"
+	"strings"
 	"testing"
 
 	"github.com/mitchellh/cli"
@@ -27,17 +27,19 @@ func TestCircleCI_WithoutArgs(t *testing.T) {
 	c := &CircleCICommand{UI: ui}
 	args := []string{}
 	if code := c.Run(args); code != 0 {
-		t.Fatalf("bad: \n%s", ui.ErrorWriter.String())
+		t.Fatalf("bad: \n%s", ui.OutputWriter.String())
 	}
 }
 
-// func TestCircleCI_WithoutToken(t *testing.T) {
-// 	ui := new(cli.MockUi)
-// 	c := &CircleCICommand{UI: ui}
-// 	args := []string{"--username", "nlamirault", "--name", "guzuta"}
-// 	if code := c.Run(args); code != 0 {
-// 		t.Fatalf("Error with invalid args: %s \n%s",
-// 			code, ui.OutputWriter.String())
-// 	}
-// 	fmt.Printf(ui.OutputWriter.String())
-// }
+func TestCircleCI_WithInvalidProject(t *testing.T) {
+	ui := new(cli.MockUi)
+	c := &CircleCICommand{UI: ui}
+	args := []string{"--username", "nlamirault", "--name", "aaaaaa"}
+	code := c.Run(args)
+	if code != 0 {
+		t.Fatalf("Failed: %d. %#v", code, ui.ErrorWriter.String())
+	}
+	if !strings.Contains(ui.ErrorWriter.String(), "Project not found") {
+		t.Fatalf("bad: %#v", ui.ErrorWriter.String())
+	}
+}

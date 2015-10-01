@@ -34,17 +34,24 @@ type GitlabCommand struct {
 
 func (c *GitlabCommand) Help() string {
 	helpText := `
-Usage: guzuta gitlab [options]
-	Check projects status from Gitlab
+Usage: guzuta gitlab [options] actions
+
+   Manage projects from Gitlab
+
+Actions:
+       get   : Describe a project
+       list  : List all projects
+
 Options:
 	--debug                   Debug mode enabled
 	--name=name               Project name
-	--namespace=namespace     Gitlab namespace`
+	--namespace=namespace     Gitlab namespace
+`
 	return strings.TrimSpace(helpText)
 }
 
 func (c *GitlabCommand) Synopsis() string {
-	return "Check projects status from Gitlab"
+	return "Manage projects from Gitlab"
 }
 
 func (c *GitlabCommand) Run(args []string) int {
@@ -60,22 +67,40 @@ func (c *GitlabCommand) Run(args []string) int {
 	if err := f.Parse(args); err != nil {
 		return 1
 	}
+	action := f.Args()
+	if len(action) != 1 {
+		errorMessage(
+			c.UI,
+			"At least one action to gitlab must be specified.",
+			c.Help())
+		return 1
+	}
 	if debug {
 		c.UI.Info("Debug mode enabled.")
 		logging.SetLogging("DEBUG")
 	} else {
 		logging.SetLogging("INFO")
 	}
-	client := gitlab.NewClient(utils.Getenv("GUZUTA_GITLAB_TOKEN"))
-	if len(name) > 0 && len(namespace) > 0 {
-		gitlabProjectStatus(client, namespace, name)
-		return 0
-	}
-	if len(namespace) > 0 {
-		gitlabProjectsStatus(client, namespace)
-		return 0
+	if action[0] == "get" {
+		if len(name) > 0 && len(namespace) > 0 {
+			gitlabProjectStatus(getGitlabClient(), namespace, name)
+			return 0
+		}
+		errorMessage(c.UI, "Please specify name and namespace.", c.Help())
+		return 1
+	} else if action[0] == "list" {
+		if len(namespace) > 0 {
+			gitlabProjectsStatus(getGitlabClient(), namespace)
+			return 0
+		}
+		errorMessage(c.UI, "Please specify namespace.", c.Help())
+		return 1
 	}
 	return 0
+}
+
+func getGitlabClient() *gitlab.Client {
+	return gitlab.NewClient(utils.Getenv("GUZUTA_GITLAB_TOKEN"))
 }
 
 func gitlabProjectStatus(client *gitlab.Client, namespace string, name string) {
