@@ -1,11 +1,16 @@
 # Guzuta
 
-[![License Apache 2][badge-license]][LICENSE]
-[![travis][badge-travis]][travis]
-[![drone][badge-drone]][drone]
-[![coveralls][badge-coveralls]][coveralls]
+[![License Apache 2][badge-license]](LICENSE)
+[![GitHub version](https://badge.fury.io/gh/nlamirault%2Fguzuta.svg)](https://badge.fury.io/gh/nlamirault%2Fguzuta)
 
 A CLI to manage personal open source contributions.
+
+Master :
+* [![Circle CI](https://circleci.com/gh/nlamirault/guzuta/tree/master.svg?style=svg)](https://circleci.com/gh/nlamirault/guzuta/tree/master)
+
+Develop :
+* [![Circle CI](https://circleci.com/gh/nlamirault/guzuta/tree/develop.svg?style=svg)](https://circleci.com/gh/nlamirault/guzuta/tree/develop)
+
 
 ## Installation
 
@@ -102,11 +107,5 @@ Nicolas Lamirault <nicolas.lamirault@gmail.com>
 
 [badge-license]: https://img.shields.io/badge/license-Apache_2-green.svg?style=flat
 [LICENSE]: https://github.com/nlamirault/guzuta/blob/master/LICENSE
-[travis]: https://travis-ci.org/nlamirault/guzuta
-[badge-travis]: http://img.shields.io/travis/nlamirault/guzuta.svg?style=flat
-[badge-drone]: https://drone.io/github.com/nlamirault/guzuta/status.png
-[drone]: https://drone.io/github.com/nlamirault/guzuta/latest
-[badge-coveralls]: https://coveralls.io/repos/nlamirault/guzuta/badge.svg
-[coveralls]: https://coveralls.io/r/nlamirault/guzuta
 
 [releases]: https://github.com/nlamirault/guzuta/releases
