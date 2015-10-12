@@ -18,34 +18,102 @@ Download binary from [releases][] for your platform.
 
 ## Usage
 
+### Github
+
+* List user's repositories :
+
 ```bash
-$ guzuta
-NAME:
-   guzuta - A CLI for Open source repositories
-
-USAGE:
-   guzuta [global options] command [command options] [arguments...]
-
-VERSION:
-   0.1.0
-
-AUTHOR(S):
-   Nicolas Lamirault <nicolas.lamirault@gmail.com>
-
-COMMANDS:
-   github
-   help, h      Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --log-level, -l "info"       Log level (options: debug, info, warn, error, fatal, panic)
-   --github-token               Github access token [$GUZUTA_GITHUB_TOKEN]
-   --help, -h                   show help
-   --version, -v                print the version
-
+$ guzuta github --username=nlamirault repos
+* abraracourcix - A simple URL Shortener
+* aneto - A backup tool
+[...]
 ```
 
-You must have an **access token** to use the CLI.
+* Describe user repository :
 
+```bash
+$ guzuta github --username=nlamirault --name=guzuta repo
+* guzuta - A CLI to manage personal open source contributions.
+```
+
+* List user's issues :
+
+```bash
+$ guzuta github --username=nlamirault issues
+- [2] open - API Statistics
+- [1] open - Add Authentication
+- [2] open - Invoke support
+[...]
+```
+
+* List user's project issues :
+
+```bash
+$ guzuta github --username=nlamirault --name=scame issues
+- [55] open - Lazy loading for modules
+- [53] open - BBDB : Add feature to customize database file
+- [51] open - Cask : Add support for pinned packages
+- [48] open - Emacs can't start due to Org-mode error
+[...]
+```
+
+
+### Gitlab
+
+* List user's projects :
+
+```bash
+$ guzuta gitlab --namespace=nicolas-lamirault list
+* eudyptula - The Eudyptula challenge
+* dotfiles - My dotfiles
+* Scame - An Emacs configuration
+[...]
+```
+
+### TravisCI
+
+* Check all projects status :
+
+```bash
+$ guzuta travisci --namespace=nlamirault
+OK      nlamirault/emacs-gitlab
+        nlamirault/bento
+KO      nlamirault/abraracourcix
+        nlamirault/nlamirault.github.io
+        nlamirault/blinky
+OK      nlamirault/iris
+KO      nlamirault/enigma
+[...]
+```
+
+* Check project status :
+
+```bash
+$ guzuta travisci --namespace=nlamirault --name=aneto
+OK      nlamirault/aneto
+```
+
+
+### CircleCI
+
+* Check all projects status  :
+
+```bash
+$ guzuta circleci --username=nlamirault
+ OK     portefaix/portefaix-ci
+ OK     nlamirault/aneto
+ OK     nlamirault/gotest.el
+ OK     nlamirault/phpunit.el
+ OK     nlamirault/scame
+[...]
+```
+
+* Check project status :
+
+```bash
+guzuta circleci --username=nlamirault --name=guzuta
+$  OK     nlamirault/guzuta
+```
 
 ## Development
 
