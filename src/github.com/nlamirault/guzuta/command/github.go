@@ -39,8 +39,10 @@ Usage: guzuta github [options] actions
    Manage projects from Github
 
 Actions:
-       get   : Describe a project
-       list  : List all projects
+       repo     : Describe a repository
+       repos    : List all repositories
+       issue    : Describe an issue
+       issues   : List all issues
 
 Options:
 	--debug                   Debug mode enabled
@@ -57,11 +59,13 @@ func (c *GithubCommand) Synopsis() string {
 func (c *GithubCommand) Run(args []string) int {
 	var debug bool
 	var name, username, token string
+	var issueID int
 	f := flag.NewFlagSet("github", flag.ContinueOnError)
 	f.Usage = func() { c.UI.Output(c.Help()) }
 	f.BoolVar(&debug, "debug", false, "Debug mode enabled")
 	f.StringVar(&name, "name", "", "Github project's name")
 	f.StringVar(&username, "username", "", "Github username")
+	f.IntVar(&issueID, "issueid", 0, "Issue number")
 	f.StringVar(&token, "token", utils.Getenv("GUZUTA_GITHUB_TOKEN"), "API token")
 
 	if err := f.Parse(args); err != nil {
@@ -77,20 +81,40 @@ func (c *GithubCommand) Run(args []string) int {
 		return 1
 	}
 	setupLogging(debug)
-	if action[0] == "get" {
+	if action[0] == "repo" {
 		if len(name) > 0 && len(username) > 0 {
 			githubRepositoryStatus(getGithubClient(), username, name)
 			return 0
 		}
 		errorMessage(c.UI, "Please specify name and username.", c.Help())
 		return 1
-	} else if action[0] == "list" {
+	} else if action[0] == "repos" {
 		if len(username) > 0 {
 			githubRepositoriesStatus(getGithubClient(), username)
 			return 0
 		}
 		errorMessage(c.UI, "Please specify username.", c.Help())
 		return 1
+	} else if action[0] == "issue" {
+		if len(name) > 0 && len(username) > 0 {
+			githubGetRepositoryIssue(
+				getGithubClient(), username, name, issueID)
+			return 0
+		}
+		errorMessage(
+			c.UI, "Please specify username, name and issueID.", c.Help())
+		return 1
+	} else if action[0] == "issues" {
+		opt := &github.IssueListOptions{
+			Filter: "all",
+		}
+		if len(name) > 0 && len(username) > 0 {
+			githubListRepositoryIssues(
+				getGithubClient(), username, name, opt)
+		} else {
+			githubListIssues(getGithubClient(), opt)
+		}
+		return 0
 	}
 	return 0
 }
@@ -121,4 +145,42 @@ func githubRepositoriesStatus(client *github.Client, username string) {
 
 func githubPrintRepository(repo *github.Repository) {
 	fmt.Printf("* %s - %s\n", repo.Name, repo.Description)
+}
+
+func githubListIssues(client *github.Client, opt *github.IssueListOptions) {
+	issues, err := client.ListIssues(opt)
+	if err != nil {
+		colorstring.Printf("[red] Github : %s\n", err.Error())
+		return
+	}
+	for _, issue := range *issues {
+		githubPrintIssue(&issue)
+	}
+}
+
+func githubListRepositoryIssues(client *github.Client, username string, name string, opt *github.IssueListOptions) {
+	issues, err := client.ListRepositoryIssues(username, name, opt)
+	if err != nil {
+		colorstring.Printf("[red] Github : %s\n", err.Error())
+		return
+	}
+	for _, issue := range *issues {
+		githubPrintIssue(&issue)
+	}
+}
+
+func githubGetRepositoryIssue(client *github.Client, username string, name string, issueID int) {
+	issue, err := client.GetRepositoryIssue(username, name, issueID)
+	if err != nil {
+		colorstring.Printf("[red] Github : %s\n", err.Error())
+		return
+	}
+	fmt.Printf("Number:     %d\nState:      %s\nTitle:      %s\n",
+		issue.Number, issue.State, issue.Title)
+	fmt.Printf("Creation:   %s\nUpdated:    %s\n",
+		issue.CreatedAt, issue.UpdatedAt)
+}
+
+func githubPrintIssue(issue *github.Issue) {
+	fmt.Printf("- [%d] %s - %s\n", issue.Number, issue.State, issue.Title)
 }
