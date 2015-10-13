@@ -1,7 +1,7 @@
 Changelog
 ===========
 
-# Version 0.2.0 (10/12/2015)
+# Version 0.2.0 (10/13/2015)
 
 - Setup continuous integration
 - Refactoring CLI
