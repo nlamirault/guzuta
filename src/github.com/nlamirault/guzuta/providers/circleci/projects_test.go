@@ -46,7 +46,7 @@ func TestRetrieveCircleCIProject(t *testing.T) {
 		Limit:    1,
 	})
 	for _, build := range *builds {
-		if len(build.Outcome) == 0 {
+		if len(build.VcsRevision) == 0 {
 			t.Fatalf("Invalid project : %#v", build)
 		}
 	}
