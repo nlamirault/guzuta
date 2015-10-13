@@ -16,13 +16,14 @@ package circleci
 
 import (
 	//"encoding/json"
+	//"errors"
 	"fmt"
 	//"io"
 	//"io/ioutil"
 	"log"
-	"net/http"
+	//"net/http"
 
-	"github.com/nlamirault/guzuta/utils"
+	"github.com/nlamirault/guzuta/providers"
 )
 
 // ProjectInput represents project parameters
@@ -66,48 +67,31 @@ type Project struct {
 func (c *Client) GetProjects() (*[]Project, error) {
 	log.Printf("[DEBUG] Get projects")
 	var projects *[]Project
-	resp, err := c.Do(
+	err := providers.Do(
+		c,
 		"GET",
 		fmt.Sprintf("projects?circle-token=%s", c.Token),
-		nil)
+		nil,
+		&projects)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		err = utils.DecodeResponse(resp, &projects)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("[DEBUG] Project: %v", projects)
 	}
 	return projects, nil
 }
 
 // GetProject retrieve repositorys by name
 func (c *Client) GetProject(input *ProjectInput) (*[]Build, error) {
-	// input := &ProjectInput{
-	// 	Username: "nlamirault",
-	// 	Project:  "gotest.el",
-	// 	Limit:    1,
-	// }
 	log.Printf("[DEBUG] Get project: %s %s", input.Username, input.Project)
 	var project *[]Build
-	resp, err := c.Do(
+	err := providers.Do(
+		c,
 		"GET",
 		fmt.Sprintf("project/%s/%s?limit=%d&circle-token=%s",
 			input.Username, input.Project, input.Limit, c.Token),
-		nil)
+		nil,
+		&project)
 	if err != nil {
 		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		err = utils.DecodeResponse(resp, &project)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("[DEBUG] Project: %#v", project)
 	}
 	return project, nil
 }

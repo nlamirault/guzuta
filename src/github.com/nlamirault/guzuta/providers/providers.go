@@ -17,11 +17,13 @@ package providers
 import (
 	"bytes"
 	"encoding/json"
+	//"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 
+	"github.com/nlamirault/guzuta/utils"
 	"github.com/nlamirault/guzuta/version"
 )
 
@@ -41,14 +43,20 @@ var (
 // APIClient represents a client for a REST API
 type APIClient interface {
 
+	// EndPoint returns the API base URL
+	EndPoint() *url.URL
+
+	// GetHTTPClient returns the HTTP client to use
+	GetHTTPClient() *http.Client
+
 	// SetupHeaders add customer headers
 	SetupHeaders(request *http.Request)
 
 	// Do perform a HTTP request
-	Do(method, urlStr string, body interface{}) (*http.Response, error)
+	// Do(method, urlStr string, body interface{}) (*http.Response, error)
 }
 
-func GetURL(base *url.URL, urlStr string) (*url.URL, error) {
+func getURL(base *url.URL, urlStr string) (*url.URL, error) {
 	rel, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -56,31 +64,7 @@ func GetURL(base *url.URL, urlStr string) (*url.URL, error) {
 	return base.ResolveReference(rel), nil
 }
 
-// MakeRequest creates a HTTP request given a method, URL, and optional body.
-// func MakeRequest(method, base *url.URL, urlStr string, body interface{}) (*http.Request, error) {
-// 	_, err := getURL(base, urlStr)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	buf := new(bytes.Buffer)
-// 	if body != nil {
-// 		err := json.NewEncoder(buf).Encode(body)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	}
-
-// 	// req, err := http.NewRequest(method, u.String(), buf)
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-// 	// log.Printf("[DEBUG] Request : %v", req)
-// 	// return req, nil
-// 	return nil, nil
-// }
-
-func CreateRequest(method, uri string, body interface{}) (*http.Request, error) {
+func createRequest(method, uri string, body interface{}) (*http.Request, error) {
 	buf := new(bytes.Buffer)
 	if body != nil {
 		err := json.NewEncoder(buf).Encode(body)
@@ -95,4 +79,50 @@ func CreateRequest(method, uri string, body interface{}) (*http.Request, error) 
 	}
 	log.Printf("[DEBUG] Request : %v", req)
 	return req, nil
+}
+
+func performRequest(client APIClient, method, urlStr string, body interface{}) (*http.Response, error) {
+	u, err := getURL(client.EndPoint(), urlStr)
+	if err != nil {
+		return nil, err
+	}
+	req, err := createRequest(method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+	client.SetupHeaders(req)
+	return client.GetHTTPClient().Do(req)
+}
+
+// APIError represents an error from REST API
+type APIError struct {
+	StatusCode int    `json:"status_code"`
+	Message    string `json:"message"`
+}
+
+func (a *APIError) Error() string {
+	return fmt.Sprintf("%d / %s", a.StatusCode, a.Message)
+}
+
+// Do perform a HTTP request using the REST API Client.
+// body is used for the content of the request
+// result contains the JSON decoded response
+// apiError contains the JSON error response if HTTP status code isn't OK.
+func Do(client APIClient, method, urlStr string, body interface{}, result interface{}) error {
+	resp, err := performRequest(client, method, urlStr, body)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusOK {
+		return utils.DecodeResponse(resp, result)
+	}
+	content, err := utils.GetResponseBody(resp)
+	if err != nil {
+		return fmt.Errorf("Can't read API Error : %v", err)
+	}
+	return &APIError{
+		StatusCode: resp.StatusCode,
+		Message:    content,
+	}
 }

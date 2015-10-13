@@ -1,3 +1,6 @@
 # gb specific folders
 bin
 pkg
+
+# Emacs
+*~

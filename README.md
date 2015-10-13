@@ -1,11 +1,16 @@
 # Guzuta
 
-[![License Apache 2][badge-license]][LICENSE]
-[![travis][badge-travis]][travis]
-[![drone][badge-drone]][drone]
-[![coveralls][badge-coveralls]][coveralls]
+[![License Apache 2][badge-license]](LICENSE)
+[![GitHub version](https://badge.fury.io/gh/nlamirault%2Fguzuta.svg)](https://badge.fury.io/gh/nlamirault%2Fguzuta)
 
 A CLI to manage personal open source contributions.
+
+Master :
+* [![Circle CI](https://circleci.com/gh/nlamirault/guzuta/tree/master.svg?style=svg)](https://circleci.com/gh/nlamirault/guzuta/tree/master)
+
+Develop :
+* [![Circle CI](https://circleci.com/gh/nlamirault/guzuta/tree/develop.svg?style=svg)](https://circleci.com/gh/nlamirault/guzuta/tree/develop)
+
 
 ## Installation
 
@@ -13,34 +18,102 @@ Download binary from [releases][] for your platform.
 
 ## Usage
 
+### Github
+
+* List user's repositories :
+
 ```bash
-$ guzuta
-NAME:
-   guzuta - A CLI for Open source repositories
-
-USAGE:
-   guzuta [global options] command [command options] [arguments...]
-
-VERSION:
-   0.1.0
-
-AUTHOR(S):
-   Nicolas Lamirault <nicolas.lamirault@gmail.com>
-
-COMMANDS:
-   github
-   help, h      Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --log-level, -l "info"       Log level (options: debug, info, warn, error, fatal, panic)
-   --github-token               Github access token [$GUZUTA_GITHUB_TOKEN]
-   --help, -h                   show help
-   --version, -v                print the version
-
+$ guzuta github --username=nlamirault repos
+* abraracourcix - A simple URL Shortener
+* aneto - A backup tool
+[...]
 ```
 
-You must have an **access token** to use the CLI.
+* Describe user repository :
 
+```bash
+$ guzuta github --username=nlamirault --name=guzuta repo
+* guzuta - A CLI to manage personal open source contributions.
+```
+
+* List user's issues :
+
+```bash
+$ guzuta github --username=nlamirault issues
+- [2] open - API Statistics
+- [1] open - Add Authentication
+- [2] open - Invoke support
+[...]
+```
+
+* List user's project issues :
+
+```bash
+$ guzuta github --username=nlamirault --name=scame issues
+- [55] open - Lazy loading for modules
+- [53] open - BBDB : Add feature to customize database file
+- [51] open - Cask : Add support for pinned packages
+- [48] open - Emacs can't start due to Org-mode error
+[...]
+```
+
+
+### Gitlab
+
+* List user's projects :
+
+```bash
+$ guzuta gitlab --namespace=nicolas-lamirault list
+* eudyptula - The Eudyptula challenge
+* dotfiles - My dotfiles
+* Scame - An Emacs configuration
+[...]
+```
+
+### TravisCI
+
+* Check all projects status :
+
+```bash
+$ guzuta travisci --namespace=nlamirault
+OK      nlamirault/emacs-gitlab
+        nlamirault/bento
+KO      nlamirault/abraracourcix
+        nlamirault/nlamirault.github.io
+        nlamirault/blinky
+OK      nlamirault/iris
+KO      nlamirault/enigma
+[...]
+```
+
+* Check project status :
+
+```bash
+$ guzuta travisci --namespace=nlamirault --name=aneto
+OK      nlamirault/aneto
+```
+
+
+### CircleCI
+
+* Check all projects status  :
+
+```bash
+$ guzuta circleci --username=nlamirault
+ OK     portefaix/portefaix-ci
+ OK     nlamirault/aneto
+ OK     nlamirault/gotest.el
+ OK     nlamirault/phpunit.el
+ OK     nlamirault/scame
+[...]
+```
+
+* Check project status :
+
+```bash
+guzuta circleci --username=nlamirault --name=guzuta
+$  OK     nlamirault/guzuta
+```
 
 ## Development
 
@@ -62,9 +135,13 @@ You must have an **access token** to use the CLI.
 
         $ make build
 
-* Launch unit tests :
+* Launch all unit tests :
 
         $ make test
+
+* Launch some unit tests :
+
+        $ gb test github.com/nlamirault/guzuta/providers/gitlab/
 
 * Check code coverage for project or specific package :
 
@@ -98,11 +175,5 @@ Nicolas Lamirault <nicolas.lamirault@gmail.com>
 
 [badge-license]: https://img.shields.io/badge/license-Apache_2-green.svg?style=flat
 [LICENSE]: https://github.com/nlamirault/guzuta/blob/master/LICENSE
-[travis]: https://travis-ci.org/nlamirault/guzuta
-[badge-travis]: http://img.shields.io/travis/nlamirault/guzuta.svg?style=flat
-[badge-drone]: https://drone.io/github.com/nlamirault/guzuta/status.png
-[drone]: https://drone.io/github.com/nlamirault/guzuta/latest
-[badge-coveralls]: https://coveralls.io/repos/nlamirault/guzuta/badge.svg
-[coveralls]: https://coveralls.io/r/nlamirault/guzuta
 
 [releases]: https://github.com/nlamirault/guzuta/releases
