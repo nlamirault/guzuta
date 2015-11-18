@@ -22,7 +22,6 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/colorstring"
 
-	//"github.com/nlamirault/guzuta/logging"
 	"github.com/nlamirault/guzuta/providers/github"
 	"github.com/nlamirault/guzuta/utils"
 )
