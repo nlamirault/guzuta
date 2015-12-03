@@ -156,7 +156,7 @@ $  OK     nlamirault/guzuta
 * For a new release, it will run a build which cross-compiles binaries for
   a variety of architectures and operating systems:
 
-        $ make release
+        $ make binaries
 
 
 ## Contributing
