@@ -1,6 +1,12 @@
 Changelog
 ===========
 
+# Version 0.3.0 (12/03/2015)
+
+- Setup Bintray
+- Add some binaries
+- Setup errcheck tool
+
 # Version 0.2.0 (10/13/2015)
 
 - Setup continuous integration
