@@ -1,7 +1,7 @@
 # Guzuta
 
 [![License Apache 2][badge-license]](LICENSE)
-[![GitHub version](https://img.shields.io/github/release/nlamirault/guzuta.svg)
+[![GitHub version][badge-release]](releases)
 
 A CLI to manage personal open source contributions.
 
@@ -178,6 +178,8 @@ Nicolas Lamirault <nicolas.lamirault@gmail.com>
 
 
 [badge-license]: https://img.shields.io/badge/license-Apache_2-green.svg?style=flat
+[badge-release]: https://img.shields.io/github/release/nlamirault/guzuta.svg
+
 [LICENSE]: https://github.com/nlamirault/guzuta/blob/master/LICENSE
 
 [releases]: https://github.com/nlamirault/guzuta/releases
