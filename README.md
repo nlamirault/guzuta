@@ -1,7 +1,7 @@
 # Guzuta
 
 [![License Apache 2][badge-license]](LICENSE)
-[![GitHub version](https://badge.fury.io/gh/nlamirault%2Fguzuta.svg)](https://badge.fury.io/gh/nlamirault%2Fguzuta)
+[![GitHub version](https://img.shields.io/github/release/nlamirault/guzuta.svg)
 
 A CLI to manage personal open source contributions.
 
