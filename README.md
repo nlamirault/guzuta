@@ -2,7 +2,7 @@
 
 [![License Apache 2][badge-license]](LICENSE)
 [![GitHub version](https://img.shields.io/github/release/nlamirault/guzuta.svg)](https://github.com/nlamirault/guzuta/releases)
-
+[![Download](https://api.bintray.com/packages/nlamirault/oss/guzuta/images/download.svg)](https://bintray.com/nlamirault/oss/guzuta/_latestVersion)
 
 A CLI to manage personal open source contributions.
 
