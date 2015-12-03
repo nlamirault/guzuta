@@ -42,7 +42,7 @@ func TestRetrieveTravisRepository(t *testing.T) {
 	resp, _ := client.GetRepository(slug)
 	//fmt.Printf("=> %#v", resp.Repository)
 	if !strings.HasPrefix(resp.Repository.Slug, slug) {
-		t.Fatalf("Invalid Slug : %s", resp.Repository)
+		t.Fatalf("Invalid Slug : %v", resp.Repository)
 	}
 	if resp.Repository.Description != description {
 		t.Fatalf("Invalid Description : %#v", resp.Repository)

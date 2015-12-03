@@ -1,7 +1,8 @@
 # Guzuta
 
 [![License Apache 2][badge-license]](LICENSE)
-[![GitHub version](https://badge.fury.io/gh/nlamirault%2Fguzuta.svg)](https://badge.fury.io/gh/nlamirault%2Fguzuta)
+[![GitHub version](https://img.shields.io/github/release/nlamirault/guzuta.svg)](https://github.com/nlamirault/guzuta/releases)
+
 
 A CLI to manage personal open source contributions.
 
@@ -14,7 +15,12 @@ Develop :
 
 ## Installation
 
-Download binary from [releases][] for your platform.
+You can download the binaries :
+
+* Architecture i386 [ [linux](https://bintray.com/artifact/download/nlamirault/oss/guzuta_linux_386) / [darwin](https://bintray.com/artifact/download/nlamirault/oss/guzuta_darwin_386) / [freebsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_freebsd_386) / [netbsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_netbsd_386) / [openbsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_openbsd_386) / [windows](https://bintray.com/artifact/download/nlamirault/oss/guzuta_windows_386.exe) ]
+* Architecture amd64 [ [linux](https://bintray.com/artifact/download/nlamirault/oss/guzuta_linux_amd64) / [darwin](https://bintray.com/artifact/download/nlamirault/oss/guzuta_darwin_amd64) / [freebsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_freebsd_amd64) / [netbsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_netbsd_amd64) / [openbsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_openbsd_amd64) / [windows](https://bintray.com/artifact/download/nlamirault/oss/guzuta_windows_amd64.exe) ]
+* Architecture arm [ [linux](https://bintray.com/artifact/download/nlamirault/oss/guzuta_linux_arm) / [freebsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_freebsd_arm) / [netbsd](https://bintray.com/artifact/download/nlamirault/oss/guzuta_netbsd_arm) ]
+
 
 ## Usage
 
@@ -150,7 +156,7 @@ $  OK     nlamirault/guzuta
 * For a new release, it will run a build which cross-compiles binaries for
   a variety of architectures and operating systems:
 
-        $ make release
+        $ make binaries
 
 
 ## Contributing
@@ -174,6 +180,8 @@ Nicolas Lamirault <nicolas.lamirault@gmail.com>
 
 
 [badge-license]: https://img.shields.io/badge/license-Apache_2-green.svg?style=flat
+[badge-release]: https://img.shields.io/github/release/nlamirault/guzuta.svg
+
 [LICENSE]: https://github.com/nlamirault/guzuta/blob/master/LICENSE
 
 [releases]: https://github.com/nlamirault/guzuta/releases

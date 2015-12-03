@@ -4,3 +4,6 @@ pkg
 
 # Emacs
 *~
+
+# Goxc
+.goxc.local.json

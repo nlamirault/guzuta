@@ -15,9 +15,7 @@
 package main
 
 import (
-	//"flag"
 	"fmt"
-	//"log"
 	"os"
 
 	"github.com/mitchellh/cli"
